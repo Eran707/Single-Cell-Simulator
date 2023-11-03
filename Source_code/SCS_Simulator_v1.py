@@ -84,7 +84,7 @@ class Simulator:
             total_t = T.get('TOTAL_T')[()]
             intervals = T.get('INTERVALS')[()]
             dt = T.get("DT")[()]
-            total_steps = total_t / dt
+            total_steps = round(total_t / dt)
             interval_step = total_steps / intervals
             interval_arr = [int(interval_step * i) for i in range(intervals)]
 
