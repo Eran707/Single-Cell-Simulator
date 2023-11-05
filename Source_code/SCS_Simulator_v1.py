@@ -62,9 +62,9 @@ class Simulator:
         self.syn_on = False
         self.syn_params = None
 
-        self.kr = 10 ** (12.4)
-        self.kf = 10 ** (6)  ## Reduce?
-        self.k_na_h = self.j_ATPase*10
+        self.kr = 10 ** (12.4)*1e-6
+        self.kf = 10 ** (6)*1e-6  ## Reduce?
+        self.k_na_h = 0*self.j_ATPase*10
         self.h_imbalance = 0
 
         #self.kf = 1
@@ -323,7 +323,7 @@ class Simulator:
         self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
         d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
         self.h_imbalance -= d_na_NA_H_exchange
-        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
+        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current #+ d_na_NA_H_exchange
 
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.k_i / self.extra.k_i))
