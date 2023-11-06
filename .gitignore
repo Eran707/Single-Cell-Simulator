@@ -1,0 +1,10 @@
+$ cat .venv
+.venv
+.venv/
+
+$ cat ipynb checkpoints
+.ipynb_checkpoints
+*.pyc
+
+$ store
+.DS_Store
