@@ -21,7 +21,7 @@ from SCS_Simulator_v1 import Simulator
 
 sim_type = "New"    # Simulation type either set as "New" or "Extend"
 
-new_file_name = "rate_constants_SS_default_z_ratio_constants_exch"
+new_file_name = "rate_constants_SS_default_kcc_ratio_constants_lower1e-3"
 old_file_name = ""  # Only needed when the sim_type is Extend
 
 # STEP 2: SET SIMULATION TIMING
@@ -69,7 +69,7 @@ sim.dynamic_ATPase = dynamic_ATPase
 
 #sim.add_synapse(start_t=5, tau=250e-3, max_g=1e-6)
 
-sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
-#sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
+#sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
+sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
 
 sim.run_simulation()
