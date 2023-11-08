@@ -50,6 +50,9 @@ if sim_type == "New":
     sim = Simulator(sim_type="New", new_file_name=new_file_name)
     sim.set_intracellular_properties(intracellular_params)
     sim.set_extracellular_properties(extracellular_params)
+    #sim.kf = 10 ** (6) * (1e-6)  ## Reduce?
+    #sim.kr = (-5e-11 + sim.kf * 0.0016) / (0.01 * 63e-9)
+    #print("k_r:" +str(sim.kr))
 
 elif sim_type == "Extend":
     sim = Simulator(sim_type="Extend", new_file_name=new_file_name, old_file_name=old_file_name)
@@ -73,45 +76,3 @@ sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
 #sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
 
 sim.run_simulation()
-
-new_file_name = "rate_constants_SS_default_kcc_ratio_constants_lower1e-4"
-if sim_type == "New":
-    sim = Simulator(sim_type="New", new_file_name=new_file_name)
-    sim.set_intracellular_properties(intracellular_params)
-    sim.set_extracellular_properties(extracellular_params)
-
-elif sim_type == "Extend":
-    sim = Simulator(sim_type="Extend", new_file_name=new_file_name, old_file_name=old_file_name)
-
-else:
-    print("sim_type needs to either be 'New' or 'Extend'")
-
-sim.set_timing(total_t=total_t, dt=dt, total_intervals=intervals)
-sim.infinite_bath = infinite_bath
-sim.dynamic_ATPase = dynamic_ATPase
-#sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
-sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
-sim.run_simulation()
-
-new_file_name = "rate_constants_SS_default_ratio_constants_lower1e-3"
-if sim_type == "New":
-    sim = Simulator(sim_type="New", new_file_name=new_file_name)
-    sim.set_intracellular_properties(intracellular_params)
-    sim.set_extracellular_properties(extracellular_params)
-    sim.kf = 10 ** (6) * (1e-6)  ## Reduce?
-    sim.kr = (-5e-11 + sim.kf * 0.0016) / (0.01 * 63e-9)
-    print("k_r:" +str(sim.kr))
-
-elif sim_type == "Extend":
-    sim = Simulator(sim_type="Extend", new_file_name=new_file_name, old_file_name=old_file_name)
-
-else:
-    print("sim_type needs to either be 'New' or 'Extend'")
-
-sim.set_timing(total_t=3000, dt=dt, total_intervals=intervals)
-sim.infinite_bath = infinite_bath
-sim.dynamic_ATPase = dynamic_ATPase
-#sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
-#sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
-sim.run_simulation()
-
