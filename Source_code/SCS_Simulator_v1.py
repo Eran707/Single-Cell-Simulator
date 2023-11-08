@@ -62,7 +62,7 @@ class Simulator:
         self.syn_on = False
         self.syn_params = None
 
-        self.kf = 10 ** (6) * (1e-3)  ## Reduce?
+        self.kf = 10 ** (6) * (1e-6)  ## Reduce?
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
