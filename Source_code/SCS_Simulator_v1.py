@@ -61,12 +61,14 @@ class Simulator:
 
         self.syn_on = False
         self.syn_params = None
+        self.cl_syn,self.hco3_syn = 0,0
 
-        self.kf = 10 ** (6)  ## Reduce?
+        #self.kf = 10 ** (6)  ## Reduce?
+        self.kf = 10 **3
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
-        self.k_na_h = 1#10 * self.j_ATPase
+        self.k_na_h = 0.25   #10 * self.j_ATPase
         self.h_imbalance = 0
 
         #self.kf = 1
@@ -241,14 +243,15 @@ class Simulator:
         I_cl = I_cl / F  # converting coulomb to mol
         I_cl = I_cl * self.dt  # getting the mol input for the timestep
         cl_change = I_cl / self.intra.w  # calculating concentration change
-        self.intra.cl_i += cl_change
+        self.cl_syn = cl_change
 
         # Bicarb component
         I_hco3 = syn_g * (self.intra.v - self.intra.E_hco3) * (1 - gaba_fraction)
         I_hco3 = I_hco3 / F  # converting coulomb to mol
         I_hco3 = I_hco3 * self.dt  # getting the mol input for the timestep
         hco3_change = I_hco3 / self.intra.w  # calculating concentration change
-        self.intra.hco3_i += hco3_change
+        self.hco3_syn = hco3_change
+
 
     def calc_voltages(self):
         intracellular_charge = self.intra.na_i + self.intra.k_i + \
@@ -307,13 +310,13 @@ class Simulator:
         d_cl_leak = + self.dt * self.intra.sa / self.intra.w * (gcl + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.cl_i / self.intra.cl_i))
         d_cl_kcc2 = + self.dt * self.intra.sa / self.intra.w * self.j_kcc2
-        self.intra.d_cl_i = d_cl_leak + d_cl_kcc2
+        self.intra.d_cl_i = d_cl_leak + d_cl_kcc2 + self.cl_syn
 
         d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
         d_hco3_forwardRx = self.dt * self.kf * h2co3_i
         d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * h_i
-        self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx)
+        self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
 
         # should convert to mols of HCO3 --> mols of H+ --> mols of Na+ : this is the same
 
@@ -322,10 +325,11 @@ class Simulator:
                 self.intra.v + RTF * np.log(self.intra.na_i / self.extra.na_i))
         d_na_atpase = - self.dt * self.intra.sa / self.intra.w * (+3 * self.j_ATPase)
         d_na_current = self.current_na # only if external current is added
-        self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
+        #self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
+        self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
         d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
-        self.h_imbalance -= d_na_NA_H_exchange
-        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current #+ d_na_NA_H_exchange
+        #self.h_imbalance -= d_na_NA_H_exchange
+        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
 
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.k_i / self.extra.k_i))

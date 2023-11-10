@@ -19,16 +19,16 @@ from SCS_Simulator_v1 import Simulator
 
 # STEP 1: ESTABLISHING SIMULATION TYPE
 
-sim_type = "New"    # Simulation type either set as "New" or "Extend"
+sim_type = "Extend"    # Simulation type either set as "New" or "Extend"
 
-new_file_name = "rate_constants_SS_default_z_ratio_constants_exch"
-old_file_name = ""  # Only needed when the sim_type is Extend
+new_file_name = "zChange_synapse_quarter_NAH_1e6dt"
+old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only needed when the sim_type is Extend
 
 # STEP 2: SET SIMULATION TIMING
 
-total_t = 12000      # total simulation time in seconds
-dt = 1e-5          # simulation time step in seconds
-intervals = 1000   # number of times the results of the simulation will be saved to the HDF file
+total_t = 15    # total simulation time in seconds
+dt = 1e-6           # simulation time step in seconds
+intervals = 100000    # number of times the results of the simulation will be saved to the HDF file
 
 # STEP 3: SET SIMULATION SETTINGS
 
@@ -67,9 +67,9 @@ sim.dynamic_ATPase = dynamic_ATPase
 # STEP 6: ADD ADDITIONAL COMPONENTS TO THE SIMULATION
 # Options available: Z_change; X_change; Add_synapse; Add_current; Change_KCC2
 
-#sim.add_synapse(start_t=5, tau=250e-3, max_g=1e-6)
+sim.add_synapse(start_t=10, tau=50e-3, max_g=1e-8)
 
-sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
+#sim.set_z_change(start_t=3000,end_t=6000,z_change_amount=-0.2,adjust_cl=False)
 #sim.set_KCC2_change(start_t=3000, end_t=6000, final_KCC2_value=0)
 
 sim.run_simulation()
