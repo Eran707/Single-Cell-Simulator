@@ -68,7 +68,7 @@ class Simulator:
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
-        self.k_na_h = 0.25   #10 * self.j_ATPase
+        self.k_na_h = 1   #10 * self.j_ATPase
         self.h_imbalance = 0
 
         #self.kf = 1
