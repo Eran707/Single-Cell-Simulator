@@ -35,7 +35,7 @@ km = 5 * 10 ** (-14)  # extensional rigidity of RBC at 23 deg, Mohandas and Evan
 # Membrane capacitance
 cm = 2e-4  # (F/dm^2)
 
-# External ion concentrations
+# External ion concentrations (Are these used?)
 nao = 145e-3  # in Molar
 clo = 119e-3
 ko = 3.5e-3
@@ -45,19 +45,18 @@ oso = xo + nao + clo + ko
 # Ion valency
 val = {"na": 1, "k": 1, "cl": -1, "x": -0.85}
 
-# Electrodiffusion coefficients
+# Electrodiffusion coefficients (Are these used?)
 diff_constants = {"na": 1.33e-7, "k": 1.96e-7, "cl": 2.03e-7, "x": 0}  # dm2/s
 
 # Acid base
-
 pKa = 6.1 # % Acid dissociation constant for H2CO3
 kH = 3.1e-2 # % Henry's law constant for CO2 in water (M/atm)
 P_CO2 = 1 * 5/100 # Calculate PCO2 from given percent CO2Convert % CO2 to atmospheres
 h2co3_i = kH * P_CO2 # Calculate H2CO3 concentration using Henry's law
-h_i = 10**(-7.2) # [H+] in mM based on a pH of 7.2
+#h_i = 10**(-7.2) # [H+] in mM based on a pH of 7.2
 
 kf = 1e6 # known forward rate constant for carbonic acid equation
-kr = 10**(20) # unknown reverse rate constant
+#kr = 10**(20) # unknown reverse rate constant
 
 ###########################
 # Ion channels and pumps
@@ -70,6 +69,7 @@ gna = (2.5e-3) / (F)
 gk = (7e-3) / (F)
 gcl = (2e-3) / (F)  # gna,gk,gcl: conductances in mS/cm^2 conv to S/dm^2 (10^-3/10^-2) - corrected for neuron
 ghco3 = gcl*0.2 # ghco3 is 20% of gcl
+gh = ghco3*0.2 # gH is 20% of gcl
 
 # KCC2 and ATPase pumps
 p_kcc2 = (2e-3) / (F) #default
@@ -79,6 +79,6 @@ p_kcc2 = (2e-3) / (F) #default
 p_atpase = 0.1 / F  # C/(dm2·s)
 
 # Henderson Hasselbach rate constants
-kf = 1e6 # forward rate constant
-kr = 1e8 # reverse rate constant
+kf = 1e3 # forward rate constant
+#kr = 1e8 # reverse rate constant
 

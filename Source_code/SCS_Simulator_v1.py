@@ -4,8 +4,8 @@ import os
 import time
 import compartment
 from common import \
-    gk, gna, gcl, ghco3, p_atpase, p_kcc2, h2co3_i, \
-    pw, vw, RTF, cm, F, h_i
+    gk, gna, gcl, ghco3, gh, p_atpase, p_kcc2, h2co3_i, \
+    pw, vw, RTF, cm, F, kf
 
 
 class Simulator:
@@ -64,15 +64,13 @@ class Simulator:
         self.cl_syn,self.hco3_syn = 0,0
 
         #self.kf = 10 ** (6)  ## Reduce?
-        self.kf = 10 **3
+        self.kf = kf
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
         self.k_na_h = 1   #10 * self.j_ATPase
         self.h_imbalance = 0
 
-        #self.kf = 1
-        #self.kr = 2.54e6
 
         self.g_extra = 0
         self.current_na = 0
@@ -121,9 +119,9 @@ class Simulator:
 
             comp = compartment.Compartment(compartment_name=comp_names_arr[i], radius=rad, length=length)
             comp.set_ion_properties(na_i=last_dataset[3], k_i=last_dataset[4], cl_i=last_dataset[5],
-                                    hco3_i=last_dataset[6],
-                                    x_i=last_dataset[7], z_i=last_dataset[8])
-            comp.v = last_dataset[9]
+                                    hco3_i=last_dataset[6], h_i=last_dataset[7],
+                                    x_i=last_dataset[8], z_i=last_dataset[9])
+            comp.v = last_dataset[10]
 
             if "intracellular" in comp.name.lower():
                 self.intra = comp
@@ -174,6 +172,7 @@ class Simulator:
                                       k_i=compartment_params["k"],
                                       cl_i=compartment_params["cl"],
                                       hco3_i=compartment_params["hco3"],
+                                      h_i=compartment_params["h"],
                                       x_i=compartment_params["X"],
                                       z_i=compartment_params["z"])
 
@@ -186,6 +185,7 @@ class Simulator:
                                       k_i=compartment_params["k"],
                                       cl_i=compartment_params["cl"],
                                       hco3_i=compartment_params["hco3"],
+                                      h_i=compartment_params["h"],
                                       x_i=compartment_params["X"],
                                       z_i=compartment_params["z"])
 
@@ -254,10 +254,10 @@ class Simulator:
 
 
     def calc_voltages(self):
-        intracellular_charge = self.intra.na_i + self.intra.k_i + \
+        intracellular_charge = self.intra.na_i + self.intra.k_i + self.intra.h_i \
                                (self.intra.z_i * self.intra.x_i) - (self.intra.cl_i + self.intra.hco3_i)
 
-        extracellular_charge = self.extra.na_i + self.extra.k_i + \
+        extracellular_charge = self.extra.na_i + self.extra.k_i + self.intra.h_i \
                                (self.extra.z_i * self.extra.x_i) - (self.extra.cl_i + self.extra.hco3_i)
 
         self.intra.v = self.FinvC * (
@@ -267,6 +267,7 @@ class Simulator:
         self.intra.E_k = -1 * RTF * np.log(self.intra.k_i / self.extra.k_i)
         self.intra.E_cl = RTF * np.log(self.intra.cl_i / self.extra.cl_i)
         self.intra.E_hco3 = RTF * np.log(self.intra.hco3_i / self.extra.hco3_i)
+        self.intra.E_h = -1 * RTF * np.log(self.intra.h_i / self.extra.h_i)
         # GHK equation used to calculate GABA reversal potential
         numerator = 4 / 5 * self.intra.cl_i + 1 / 5 * self.intra.hco3_i
         denominator = 4 / 5 * self.extra.cl_i + 1 / 5 * self.extra.hco3_i
@@ -295,7 +296,7 @@ class Simulator:
                 if (self.z_change_params["target_vm"] is None) or (self.intra.v < self.z_change_params["target_vm"]):
                     self.intra.z_i += self.z_change_params["z_change_delta"]
                     if self.z_change_params["adjust_cl"]:
-                        self.intra.cl_i = self.intra.na_i + self.intra.k_i + (self.intra.x_i * self.intra.z_i)
+                        self.intra.cl_i = self.intra.na_i + self.intra.k_i + self.intra.h_i + (self.intra.x_i * self.intra.z_i)
 
         # 2.4: Synapse step
         if self.syn_on:
@@ -307,30 +308,40 @@ class Simulator:
         # Part 3: Calculate concentration changes
 
         # 3.1: Intracellular ions
+        #Cl-
         d_cl_leak = + self.dt * self.intra.sa / self.intra.w * (gcl + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.cl_i / self.intra.cl_i))
         d_cl_kcc2 = + self.dt * self.intra.sa / self.intra.w * self.j_kcc2
         self.intra.d_cl_i = d_cl_leak + d_cl_kcc2 + self.cl_syn
 
+        #HCO3-
         d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
         d_hco3_forwardRx = self.dt * self.kf * h2co3_i
-        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * h_i
+        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
+
         self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
 
         # should convert to mols of HCO3 --> mols of H+ --> mols of Na+ : this is the same
 
-
+        #Na+
         d_na_leak = - (self.dt * self.intra.sa / self.intra.w) * (gna + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.na_i / self.extra.na_i))
         d_na_atpase = - self.dt * self.intra.sa / self.intra.w * (+3 * self.j_ATPase)
         d_na_current = self.current_na # only if external current is added
         #self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
-        self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
-        d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
+        #self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
+        d_na_NA_H_exchange = 0
+        #d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
         #self.h_imbalance -= d_na_NA_H_exchange
         self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
 
+        #H+
+        d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
+                self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
+        self.intra.d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx)
+
+        #K+
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.k_i / self.extra.k_i))
         d_k_atpase = - self.dt * self.intra.sa / self.intra.w * (- 2 * self.j_ATPase)
@@ -342,8 +353,9 @@ class Simulator:
         self.intra.k_i = self.intra.k_i + self.intra.d_k_i
         self.intra.cl_i = self.intra.cl_i + self.intra.d_cl_i
         self.intra.hco3_i = self.intra.hco3_i + self.intra.d_hco3_i
+        self.intra.h_i = self.intra.h_i + self.intra.d_h_i
 
-        # 3.2: Extracellular ions
+        # 3.2: Extracellular ions (update this)
         if not self.infinite_bath:
             self.extra.na_i = self.extra.na_i - self.intra.d_na_i * self.intra.w / self.extra.w
             self.extra.k_i = self.extra.k_i - self.intra.d_k_i * self.intra.w / self.extra.w
@@ -352,8 +364,8 @@ class Simulator:
         # Part 4: Update cell volumes
 
         # 4.1: Calculate intracellular volume change
-        intra_osm = self.intra.na_i + self.intra.k_i + self.intra.cl_i + self.intra.x_i + self.intra.hco3_i
-        extra_osm = self.extra.na_i + self.extra.k_i + self.extra.cl_i + self.extra.x_i + self.extra.hco3_i
+        intra_osm = self.intra.na_i + self.intra.k_i + self.intra.cl_i + self.intra.x_i + self.intra.hco3_i + self.intra.h_i
+        extra_osm = self.extra.na_i + self.extra.k_i + self.extra.cl_i + self.extra.x_i + self.extra.hco3_i + self.intra.h_i
         dw = self.dt * (vw * pw * self.intra.sa * (intra_osm - extra_osm))
         intra_w2 = self.intra.w + dw
 
@@ -363,6 +375,7 @@ class Simulator:
         self.intra.cl_i = self.intra.cl_i * self.intra.w / intra_w2
         self.intra.x_i = self.intra.x_i * self.intra.w / intra_w2
         self.intra.hco3_i = self.intra.hco3_i * self.intra.w / intra_w2
+        self.intra.h_i = self.intra.h_i * self.intra.w / intra_w2
 
         # 4.3: Update intracellular volume, radius and surface area
         self.intra.w = intra_w2

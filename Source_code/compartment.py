@@ -50,22 +50,23 @@ class Compartment:
         self.p_atpase = p_atpase
 
         self.v, self.E_cl, self.E_k, self.drivingf_cl = -69.8e-3, -81.1e-3, -100e-3, 0
-        self.E_gaba, self.E_hco3, self.gaba_fraction = 0, 0, 0
+        self.E_gaba, self.E_hco3, self.E_h, self.gaba_fraction = 0, 0, 0, 0
 
-        self.na_i, self.k_i, self.cl_i, self.hco3_i, self.x_i, self.z_i = 0, 0, 0, 0, 0, 0
+        self.na_i, self.k_i, self.cl_i, self.hco3_i, self.h_i, self.x_i, self.z_i = 0, 0, 0, 0, 0, 0, 0
 
     def set_ion_properties(self,
                            na_i=0.014,
                            k_i=0.1229,
                            cl_i=0.0052,
                            hco3_i=0.025,
+                           h_i=0.00003, 
                            x_i=0.1549,
                            z_i=-0.85,
                            ):
-        self.na_i, self.k_i, self.cl_i, self.hco3_i, self.x_i, self.z_i = na_i, k_i, cl_i, hco3_i, x_i, z_i
+        self.na_i, self.k_i, self.cl_i, self.hco3_i, self.h_i, self.x_i, self.z_i = na_i, k_i, cl_i, hco3_i, h_i, x_i, z_i
 
     def get_array(self, time=0):
         array = [time, self.radius, self.w,
-                 self.na_i, self.k_i, self.cl_i, self.hco3_i, self.x_i, self.z_i,
+                 self.na_i, self.k_i, self.cl_i, self.hco3_i, self.h_i, self.x_i, self.z_i,
                  self.v]
         return array
