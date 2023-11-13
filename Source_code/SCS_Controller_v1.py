@@ -26,7 +26,7 @@ old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only neede
 
 # STEP 2: SET SIMULATION TIMING
 
-total_t = 5    # total simulation time in seconds
+total_t = 60    # total simulation time in seconds
 dt = 1e-5           # simulation time step in seconds
 intervals = 100000    # number of times the results of the simulation will be saved to the HDF file
 
@@ -42,7 +42,7 @@ intracellular_params = {"name": "1_Intracellular", "radius": 5e-5,"length": 25e-
                         "na": 14e-3, "k":122.9e-3 , "cl":5.2e-3, "hco3":15e-3, "h":0.0631e-3, "X":154.9e-3,"z":-0.85 }
 
 extracellular_params = {"name": "2_Extracellular", "radius": 5e-5, "length": 25e-5,
-                        "na": 145e-3,"k":3.5e-3 , "cl":110e-3, "hco3":31e-3, "h":0.03981e-3, "X":7.5e-3,  "z":-1}
+                        "na": 145e-3,"k":3.5e-3 , "cl":110e-3, "hco3":30.96019e-3, "h":0.03981e-3, "X":7.5e-3,  "z":-1}
 
 # STEP 5: ESTABLISH BASIC SIMULATION PARAMETERS
 

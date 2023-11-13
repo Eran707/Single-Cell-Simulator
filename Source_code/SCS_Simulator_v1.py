@@ -254,10 +254,10 @@ class Simulator:
 
 
     def calc_voltages(self):
-        intracellular_charge = self.intra.na_i + self.intra.k_i + self.intra.h_i \
+        intracellular_charge = self.intra.na_i + self.intra.k_i + self.intra.h_i + \
                                (self.intra.z_i * self.intra.x_i) - (self.intra.cl_i + self.intra.hco3_i)
 
-        extracellular_charge = self.extra.na_i + self.extra.k_i + self.intra.h_i \
+        extracellular_charge = self.extra.na_i + self.extra.k_i + self.intra.h_i + \
                                (self.extra.z_i * self.extra.x_i) - (self.extra.cl_i + self.extra.hco3_i)
 
         self.intra.v = self.FinvC * (
@@ -317,8 +317,8 @@ class Simulator:
         #HCO3-
         d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
-        d_hco3_forwardRx = self.dt * self.kf * h2co3_i
-        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
+        d_hco3_forwardRx = 0 #self.dt * self.kf * h2co3_i
+        d_hco3_reverseRx = 0 #self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
 
         self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
 
@@ -339,7 +339,7 @@ class Simulator:
         #H+
         d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
-        self.intra.d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx)
+        self.intra.d_h_i = d_h_leak #+ (d_hco3_forwardRx - d_hco3_reverseRx)
 
         #K+
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
@@ -451,6 +451,12 @@ class Simulator:
         sim_current_duration = time.time() - self.sim_start_t
         print(str(self.status_percentages[index] * 100) + " % complete in " + str(
             round(sim_current_duration, 2)) + " s")
+        #some readout
+        print("Vm: " + str(self.intra.v*1000) + "mV")
+        print("Ecl: " + str(self.intra.E_cl*1000) + "mV")
+        print("Ehco3-: " + str(self.intra.E_hco3*1000) + "mV")
+        print("Eh: " + str(self.intra.E_h*1000) + "mV")
+        print("Volume: " + str(self.intra.w))
 
         if index == 2:  # time to complete 1%
             hundred_percent_t = sim_current_duration * 100
