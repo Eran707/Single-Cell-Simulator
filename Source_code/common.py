@@ -79,6 +79,6 @@ p_kcc2 = (2e-3) / (F) #default
 p_atpase = 0.1 / F  # C/(dm2·s)
 
 # Henderson Hasselbach rate constants
-kf = 1e3 # forward rate constant
+kf = 1e6 # forward rate constant
 #kr = 1e8 # reverse rate constant
 

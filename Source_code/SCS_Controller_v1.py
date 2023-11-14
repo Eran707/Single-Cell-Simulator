@@ -21,12 +21,12 @@ from SCS_Simulator_v1 import Simulator
 
 sim_type = "New"    # Simulation type either set as "New" or "Extend"
 
-new_file_name = "default_H_no_CO2_hydration"
+new_file_name = "default_H_small_CO2_hydration"
 old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only needed when the sim_type is Extend
 
 # STEP 2: SET SIMULATION TIMING
 
-total_t = 6000    # total simulation time in seconds
+total_t = 600    # total simulation time in seconds
 dt = 1e-5           # simulation time step in seconds
 intervals = 100000    # number of times the results of the simulation will be saved to the HDF file
 

@@ -65,10 +65,12 @@ class Simulator:
 
         #self.kf = 10 ** (6)  ## Reduce?
         self.kf = kf
-        self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
+        self.kr = kf*5
+        #self.kr = (-5e-11 + self.kf * 0.0076) / (0.01 * 63e-5)
+        #self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
-        self.k_na_h = 1   #10 * self.j_ATPase
+        self.k_na_h = 5*self.j_ATPase
         self.h_imbalance = 0
 
 
@@ -265,9 +267,11 @@ class Simulator:
 
         # Nernst equations
         self.intra.E_k = -1 * RTF * np.log(self.intra.k_i / self.extra.k_i)
+        self.intra.E_na = -1 * RTF * np.log(self.intra.na_i / self.extra.na_i)
         self.intra.E_cl = RTF * np.log(self.intra.cl_i / self.extra.cl_i)
         self.intra.E_hco3 = RTF * np.log(self.intra.hco3_i / self.extra.hco3_i)
         self.intra.E_h = -1 * RTF * np.log(self.intra.h_i / self.extra.h_i)
+        
         # GHK equation used to calculate GABA reversal potential
         numerator = 4 / 5 * self.intra.cl_i + 1 / 5 * self.intra.hco3_i
         denominator = 4 / 5 * self.extra.cl_i + 1 / 5 * self.extra.hco3_i
@@ -317,8 +321,8 @@ class Simulator:
         #HCO3-
         d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
-        d_hco3_forwardRx = 0 #self.dt * self.kf * h2co3_i
-        d_hco3_reverseRx = 0 #self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
+        d_hco3_forwardRx = self.dt * self.kf * h2co3_i
+        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
 
         self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
 
@@ -331,7 +335,7 @@ class Simulator:
         d_na_current = self.current_na # only if external current is added
         #self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
         #self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
-        d_na_NA_H_exchange = 0
+        d_na_NA_H_exchange = self.k_na_h*(self.intra.E_na - self.intra.E_h)
         #d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
         #self.h_imbalance -= d_na_NA_H_exchange
         self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
@@ -339,7 +343,7 @@ class Simulator:
         #H+
         d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
-        self.intra.d_h_i = d_h_leak #+ (d_hco3_forwardRx - d_hco3_reverseRx)
+        self.intra.d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_NA_H_exchange
 
         #K+
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
@@ -456,6 +460,10 @@ class Simulator:
         print("Ecl: " + str(self.intra.E_cl*1000) + "mV")
         print("Ehco3-: " + str(self.intra.E_hco3*1000) + "mV")
         print("Eh: " + str(self.intra.E_h*1000) + "mV")
+        print("Eh2 : " + str( -1 * RTF * np.log(self.intra.h_i / self.extra.h_i)*1000) + "mV")
+        
+        
+        print("pH: " + str(-np.log10(self.intra.h_i)))
         print("Volume: " + str(self.intra.w))
 
         if index == 2:  # time to complete 1%

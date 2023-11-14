@@ -49,7 +49,7 @@ class Compartment:
         self.p_kcc2 = p_kcc2
         self.p_atpase = p_atpase
 
-        self.v, self.E_cl, self.E_k, self.drivingf_cl = -69.8e-3, -81.1e-3, -100e-3, 0
+        self.v, self.E_cl, self.E_k, self.E_na, self.drivingf_cl = -69.8e-3, -81.1e-3, -100e-3, 40e-3, 0
         self.E_gaba, self.E_hco3, self.E_h, self.gaba_fraction = 0, 0, 0, 0
 
         self.na_i, self.k_i, self.cl_i, self.hco3_i, self.h_i, self.x_i, self.z_i = 0, 0, 0, 0, 0, 0, 0
