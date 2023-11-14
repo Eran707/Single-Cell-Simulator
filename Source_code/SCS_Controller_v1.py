@@ -21,7 +21,7 @@ from SCS_Simulator_v1 import Simulator
 
 sim_type = "Extend"    # Simulation type either set as "New" or "Extend"
 
-new_file_name = "zChange_synapse_quarter_NAH_1e6dt"
+new_file_name = "zChange_synapse_quarter_NAH_1e6dt_again"
 old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only needed when the sim_type is Extend
 
 # STEP 2: SET SIMULATION TIMING

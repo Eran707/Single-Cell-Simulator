@@ -68,7 +68,7 @@ class Simulator:
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
-        self.k_na_h = 1   #10 * self.j_ATPase
+        self.k_na_h = 0.25   #10 * self.j_ATPase
         self.h_imbalance = 0
 
         #self.kf = 1
@@ -325,10 +325,10 @@ class Simulator:
                 self.intra.v + RTF * np.log(self.intra.na_i / self.extra.na_i))
         d_na_atpase = - self.dt * self.intra.sa / self.intra.w * (+3 * self.j_ATPase)
         d_na_current = self.current_na # only if external current is added
-        #self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
-        self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
+        self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
+        #self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
         d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
-        #self.h_imbalance -= d_na_NA_H_exchange
+        self.h_imbalance -= d_na_NA_H_exchange
         self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
 
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
