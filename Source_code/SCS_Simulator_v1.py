@@ -4,7 +4,7 @@ import os
 import time
 import compartment
 from common import \
-    gk, gna, gcl, ghco3, gh, p_atpase, p_kcc2, h2co3_i, \
+    gk, gna, gcl, ghco3, gh, p_atpase, p_kcc2, p_nhe, h2co3_i, \
     pw, vw, RTF, cm, F, kf
 
 
@@ -52,6 +52,7 @@ class Simulator:
         self.p_ATPase = p_atpase  # ATPase pump rate
         self.j_ATPase = p_atpase * (14e-3 / 145e-3) ** 3  # ATPase flux default
         self.p_kcc2 = p_kcc2  # KCC2 pump rate
+        self.p_nhe = p_nhe
         self.j_kcc2 = None
 
         self.z_change_on = False
@@ -294,7 +295,11 @@ class Simulator:
                 self.p_kcc2 = self.KCC2_change_params["final_KCC2_value"]
         self.j_kcc2 = self.p_kcc2 * (self.intra.E_k - self.intra.E_cl)
 
-        # 2.3: Z change
+
+        # 2.3 NHE rate
+        self.j_nhe = self.p_nhe * (self.intra.E_na - self.intra.E_h)
+
+        # 2.4: Z change
         if self.z_change_on:
             if self.z_change_params["start_t"] < self.run_t < self.z_change_params["end_t"]:
                 if (self.z_change_params["target_vm"] is None) or (self.intra.v < self.z_change_params["target_vm"]):
@@ -302,12 +307,15 @@ class Simulator:
                     if self.z_change_params["adjust_cl"]:
                         self.intra.cl_i = self.intra.na_i + self.intra.k_i + self.intra.h_i + (self.intra.x_i * self.intra.z_i)
 
-        # 2.4: Synapse step
+        # 2.5: Synapse step
         if self.syn_on:
             if self.run_t > self.syn_params["start_t"]:
                 self.synapse_step()
 
-        # 2.5: External current
+        # 2.6: External current
+
+ 
+
 
         # Part 3: Calculate concentration changes
 
@@ -326,24 +334,22 @@ class Simulator:
 
         self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
 
-        # should convert to mols of HCO3 --> mols of H+ --> mols of Na+ : this is the same
 
         #Na+
         d_na_leak = - (self.dt * self.intra.sa / self.intra.w) * (gna + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.na_i / self.extra.na_i))
         d_na_atpase = - self.dt * self.intra.sa / self.intra.w * (+3 * self.j_ATPase)
         d_na_current = self.current_na # only if external current is added
-        #self.h_imbalance += d_hco3_forwardRx - d_hco3_reverseRx
-        #self.h_imbalance = d_hco3_forwardRx - d_hco3_reverseRx
-        d_na_NA_H_exchange = self.k_na_h*(self.intra.E_na - self.intra.E_h)
-        #d_na_NA_H_exchange = self.k_na_h * self.h_imbalance # The net H+ produced by the reaction is replaced by Na+
-        #self.h_imbalance -= d_na_NA_H_exchange
-        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_NA_H_exchange
+
+        
+        d_na_nhe = + self.dt * self.intra.sa / self.intra.w * self.j_nhe
+        
+        self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_nhe
 
         #H+
         d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
-        self.intra.d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_NA_H_exchange
+        self.intra.d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_nhe
 
         #K+
         d_k_leak = - self.dt * self.intra.sa / self.intra.w * (gk + self.g_extra) * (
@@ -353,13 +359,23 @@ class Simulator:
         self.intra.d_k_i = d_k_leak + d_k_atpase + d_k_kcc2
 
 
+        #update the intracellular ion concentrations
         self.intra.na_i = self.intra.na_i + self.intra.d_na_i
         self.intra.k_i = self.intra.k_i + self.intra.d_k_i
         self.intra.cl_i = self.intra.cl_i + self.intra.d_cl_i
         self.intra.hco3_i = self.intra.hco3_i + self.intra.d_hco3_i
         self.intra.h_i = self.intra.h_i + self.intra.d_h_i
+        
+        
+        #joe rate calculations
+        #d_hco3_leak_s = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
+        #        self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
+        
+        
+       
+        
 
-        # 3.2: Extracellular ions (update this)
+        # 3.2: Extracellular ions (outof date)
         if not self.infinite_bath:
             self.extra.na_i = self.extra.na_i - self.intra.d_na_i * self.intra.w / self.extra.w
             self.extra.k_i = self.extra.k_i - self.intra.d_k_i * self.intra.w / self.extra.w

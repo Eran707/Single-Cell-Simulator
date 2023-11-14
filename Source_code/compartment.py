@@ -23,7 +23,7 @@ of the compartment back to the simulation get_df_array: sends the dataframe arra
 
 import numpy as np
 
-from common import p_atpase, p_kcc2, cm, F
+from common import p_atpase, p_kcc2, p_nhe, cm, F
 
 
 ##################################################################################
@@ -44,9 +44,11 @@ class Compartment:
         self.FinvC = F / cm
 
         self.j_kcc2 = 0
+        self.j_nhe = 0
         self.j_p = 0
 
         self.p_kcc2 = p_kcc2
+        self.p_nhe = p_nhe
         self.p_atpase = p_atpase
 
         self.v, self.E_cl, self.E_k, self.E_na, self.drivingf_cl = -69.8e-3, -81.1e-3, -100e-3, 40e-3, 0
