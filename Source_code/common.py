@@ -78,6 +78,6 @@ p_nhe = 0 #4.002826799910886e-12 # C/(dm2·s)
 p_atpase = 0.1 / F  # C/(dm2·s)
 
 # Henderson Hasselbach rate constants
-kf = 0 #1e6 # forward rate constant
-kr = 0 #2456418404490.136 # reverse rate constant
+kf = 1 #1e6 # forward rate constant
+kr = 2477390.294756799 #2456418404490.136 # reverse rate constant
 
