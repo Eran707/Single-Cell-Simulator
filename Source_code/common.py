@@ -70,7 +70,7 @@ ghco3 = gcl*0.2 # ghco3 is 20% of gcl
 gh = ghco3 # gH 
 
 # KCC2 and ATPase pumps
-p_kcc2 = 0 #(2e-3) / (F) #default
+p_kcc2 = (2e-3) / (F) #default
 p_nhe = 0 #4.002826799910886e-12 # C/(dm2·s)
 #p_kcc2 = (4e-3)/F
 #p_kcc2 = (12e-3) / (F)
