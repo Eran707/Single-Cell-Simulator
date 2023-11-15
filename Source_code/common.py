@@ -55,8 +55,6 @@ P_CO2 = 1 * 5/100 # Calculate PCO2 from given percent CO2Convert % CO2 to atmosp
 h2co3_i = kH * P_CO2 # Calculate H2CO3 concentration using Henry's law
 #h_i = 10**(-7.2) # [H+] in mM based on a pH of 7.2
 
-kf = 1e6 # known forward rate constant for carbonic acid equation
-#kr = 10**(20) # unknown reverse rate constant
 
 ###########################
 # Ion channels and pumps
@@ -69,17 +67,17 @@ gna = (2.5e-3) / (F)
 gk = (7e-3) / (F)
 gcl = (2e-3) / (F)  # gna,gk,gcl: conductances in mS/cm^2 conv to S/dm^2 (10^-3/10^-2) - corrected for neuron
 ghco3 = gcl*0.2 # ghco3 is 20% of gcl
-gh = ghco3*0.2 # gH is 20% of gcl
+gh = ghco3 # gH 
 
 # KCC2 and ATPase pumps
-p_kcc2 = (2e-3) / (F) #default
-p_nhe = 0.1 / F  # C/(dm2·s)
+p_kcc2 = 0 #(2e-3) / (F) #default
+p_nhe = 0 #4.002826799910886e-12 # C/(dm2·s)
 #p_kcc2 = (4e-3)/F
 #p_kcc2 = (12e-3) / (F)
 
 p_atpase = 0.1 / F  # C/(dm2·s)
 
 # Henderson Hasselbach rate constants
-kf = 1e6 # forward rate constant
-#kr = 1e8 # reverse rate constant
+kf = 0 #1e6 # forward rate constant
+kr = 0 #2456418404490.136 # reverse rate constant
 

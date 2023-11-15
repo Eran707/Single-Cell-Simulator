@@ -5,7 +5,7 @@ import time
 import compartment
 from common import \
     gk, gna, gcl, ghco3, gh, p_atpase, p_kcc2, p_nhe, h2co3_i, \
-    pw, vw, RTF, cm, F, kf
+    pw, vw, RTF, cm, F, kf, kr
 
 
 class Simulator:
@@ -66,7 +66,7 @@ class Simulator:
 
         #self.kf = 10 ** (6)  ## Reduce?
         self.kf = kf
-        self.kr = kf*5
+        self.kr = kr
         #self.kr = (-5e-11 + self.kf * 0.0076) / (0.01 * 63e-5)
         #self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
@@ -344,6 +344,9 @@ class Simulator:
         
         d_na_nhe = + self.dt * self.intra.sa / self.intra.w * self.j_nhe
         
+        
+        
+        
         self.intra.d_na_i = d_na_leak + d_na_atpase + d_na_current + d_na_nhe
 
         #H+
@@ -367,12 +370,35 @@ class Simulator:
         self.intra.h_i = self.intra.h_i + self.intra.d_h_i
         
         
-        #joe rate calculations
-        #d_hco3_leak_s = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
-        #        self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
+        #joe ideal steady state rate calculations
+        # s_Vm = 0.071 
+        # s_w = 2.490963148167383e-12
+        # s_sa = 7.853981633974483e-08
+        # s_hco3_i = 0.010
+        # s_h_i = 6.31e-8
+        # s_E_h = -0.012310365940580005
+        # s_E_na = 0.06247826230153538
         
+        # s_kf = 1
         
-       
+        # s_kr = 1
+        # s_p_nhe = 1
+        
+        # s_hco3_leak = + self.dt * s_sa / s_w * (ghco3) * (
+        #         s_Vm + RTF * np.log(self.extra.hco3_i / s_hco3_i))
+        
+        # s_hco3_forwardRx = self.dt * s_kf * h2co3_i
+        
+        # s_kr = (s_hco3_leak + s_hco3_forwardRx)/(s_hco3_i * s_h_i * self.dt)
+        
+        # s_hco3_reverseRx = self.dt * s_kr * s_hco3_i * s_h_i
+        
+        # s_h_leak = - (self.dt * s_sa / s_w) * (gh) * (
+        #         s_Vm + RTF * np.log(s_h_i / self.extra.h_i))
+        
+        # s_na_nhe_fac = + self.dt * s_sa / s_w * (s_E_na - s_E_h)
+        
+        # s_p_nhe = (s_h_leak + s_hco3_forwardRx - s_hco3_reverseRx) / s_na_nhe_fac
         
 
         # 3.2: Extracellular ions (outof date)
@@ -385,7 +411,7 @@ class Simulator:
 
         # 4.1: Calculate intracellular volume change
         intra_osm = self.intra.na_i + self.intra.k_i + self.intra.cl_i + self.intra.x_i + self.intra.hco3_i + self.intra.h_i
-        extra_osm = self.extra.na_i + self.extra.k_i + self.extra.cl_i + self.extra.x_i + self.extra.hco3_i + self.intra.h_i
+        extra_osm = self.extra.na_i + self.extra.k_i + self.extra.cl_i + self.extra.x_i + self.extra.hco3_i + self.extra.h_i
         dw = self.dt * (vw * pw * self.intra.sa * (intra_osm - extra_osm))
         intra_w2 = self.intra.w + dw
 
@@ -418,12 +444,27 @@ class Simulator:
         if self.intra.cl_i < 0:
             print("Cl_i = " + str(self.intra.cl_i))
             print("d_Cl_i = " + str(self.intra.d_cl_i))
-            raise Exception("[Cl-] < 0")
+            self.intra.cl_i = 1e-12
+            #raise Exception("[Cl-] < 0")
+            
+        if self.intra.hco3_i < 0:
+            print("HCO3_i = " + str(self.intra.hco3_i))
+            print("d_HCO3_i = " + str(self.intra.d_hco3_i))
+            self.intra.hco3_i = 1e-12
+            #raise Exception("[Cl-] < 0")
+            
+        if self.intra.h_i < 0:
+                print("H_i = " + str(self.intra.h_i))
+                print("d_H_i = " + str(self.intra.d_h_i))
+                self.intra.h_i = 1e-12
+                #raise Exception("[Cl-] < 0")
+            
 
         if self.intra.k_i < 0:
             print("k_i = " + str(self.intra.k_i))
             print("d_k_i = " + str(self.intra.d_k_i))
-            raise Exception("[K+] < 0 ")
+            self.intra.k_i = 1e-12
+            
 
     def first_save(self):
 
