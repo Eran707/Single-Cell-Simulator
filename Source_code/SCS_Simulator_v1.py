@@ -298,6 +298,7 @@ class Simulator:
 
         # 2.3 NHE rate
         self.j_nhe = self.p_nhe * (self.intra.E_na - self.intra.E_h)
+        #self.j_nhe = self.p_nhe * ((-0.01231) - self.intra.E_h) #maintain at 7.2
 
         # 2.4: Z change
         if self.z_change_on:
@@ -521,25 +522,25 @@ class Simulator:
         print("pH: " + str(-np.log10(self.intra.h_i)))
         print("Volume: " + str(self.intra.w))
         
-        #HCO3-
-        d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
-                self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
-        d_hco3_forwardRx = self.dt * self.kf * h2co3_i
-        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
+        # #HCO3-
+        # d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
+        #         self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
+        # d_hco3_forwardRx = self.dt * self.kf * h2co3_i
+        # d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
 
-        d_hco3_Rx_net = d_hco3_forwardRx - d_hco3_reverseRx
-        d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
+        # d_hco3_Rx_net = d_hco3_forwardRx - d_hco3_reverseRx
+        # d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
         
         
-        d_na_nhe = + self.dt * self.intra.sa / self.intra.w * self.j_nhe
+        # d_na_nhe = + self.dt * self.intra.sa / self.intra.w * self.j_nhe
         
     
 
-        #H+
-        d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
-                self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
+        # #H+
+        # d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
+        #         self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
         
-        d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_nhe
+        # d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_nhe
         
         
         
