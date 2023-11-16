@@ -71,7 +71,7 @@ gh = ghco3 # gH
 
 # KCC2 and ATPase pumps
 p_kcc2 = (2e-3) / (F) #default
-p_nhe = p_kcc2*0.15 #4.002826799910886e-12 # C/(dm2·s)
+p_nhe = 4.419180750344195e-09 #p_kcc2*0.155 #3.2129236641466637e-09 # C/(dm2·s)
 #p_kcc2 = (4e-3)/F
 #p_kcc2 = (12e-3) / (F)
 
@@ -79,5 +79,5 @@ p_atpase = 0.1 / F  # C/(dm2·s)
 
 # Henderson Hasselbach rate constants
 kf = 1 #1e6 # forward rate constant
-kr = 2477390.294756799 #2456418404490.136 # reverse rate constant
+kr = 2489149.8895525746 #2477390.294756799  # reverse rate constant
 

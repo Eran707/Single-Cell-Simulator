@@ -371,13 +371,13 @@ class Simulator:
         
         
         #joe ideal steady state rate calculations
-        # s_Vm = 0.071 
-        # s_w = 2.490963148167383e-12
-        # s_sa = 7.853981633974483e-08
+        # s_Vm = -0.061592037507284626 
+        # s_w = 1.949378105892369e-12
+        # s_sa = 7.82569609462331e-08
         # s_hco3_i = 0.010
-        # s_h_i = 6.31e-8
-        # s_E_h = -0.012310365940580005
-        # s_E_na = 0.06247826230153538
+        # s_h_i = 6.206062256133818e-08#6.31e-8
+        # s_E_h = -0.0118731752742
+        # s_E_na = 0.06418212537173787
         
         # s_kf = 1
         
@@ -518,10 +518,35 @@ class Simulator:
         print("Ehco3-: " + str(self.intra.E_hco3*1000) + "mV")
         print("Eh: " + str(self.intra.E_h*1000) + "mV")
         print("Eh2 : " + str( -1 * RTF * np.log(self.intra.h_i / self.extra.h_i)*1000) + "mV")
-        
-        
         print("pH: " + str(-np.log10(self.intra.h_i)))
         print("Volume: " + str(self.intra.w))
+        
+        #HCO3-
+        d_hco3_leak = + self.dt * self.intra.sa / self.intra.w * (ghco3 + self.g_extra) * (
+                self.intra.v + RTF * np.log(self.extra.hco3_i / self.intra.hco3_i))
+        d_hco3_forwardRx = self.dt * self.kf * h2co3_i
+        d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * self.intra.h_i
+
+        d_hco3_Rx_net = d_hco3_forwardRx - d_hco3_reverseRx
+        d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
+        
+        
+        d_na_nhe = + self.dt * self.intra.sa / self.intra.w * self.j_nhe
+        
+    
+
+        #H+
+        d_h_leak = - (self.dt * self.intra.sa / self.intra.w) * (gh + self.g_extra) * (
+                self.intra.v + RTF * np.log(self.intra.h_i / self.extra.h_i))
+        
+        d_h_i = d_h_leak + (d_hco3_forwardRx - d_hco3_reverseRx) - d_na_nhe
+        
+        
+        
+        
+        
+        
+        
 
         if index == 2:  # time to complete 1%
             hundred_percent_t = sim_current_duration * 100
