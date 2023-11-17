@@ -381,16 +381,28 @@ class Simulator:
             self.extra.sa = 2 * np.pi * (self.extra.radius * self.extra.length)
 
         # Part 5: Raise exceptions
-
         if self.intra.cl_i < 0:
             print("Cl_i = " + str(self.intra.cl_i))
             print("d_Cl_i = " + str(self.intra.d_cl_i))
-            raise Exception("[Cl-] < 0")
-
+            self.intra.cl_i = 1e-12
+            #raise Exception("[Cl-] < 0")
+            
+        if self.intra.hco3_i < 0:
+            print("HCO3_i = " + str(self.intra.hco3_i))
+            print("d_HCO3_i = " + str(self.intra.d_hco3_i))
+            self.intra.hco3_i = 1e-12
+            #raise Exception("[Cl-] < 0")
+            
+        if self.intra.h_i < 0:
+                print("H_i = " + str(self.intra.h_i))
+                print("d_H_i = " + str(self.intra.d_h_i))
+                self.intra.h_i = 1e-12
+                #raise Exception("[Cl-] < 0")      
+        
         if self.intra.k_i < 0:
             print("k_i = " + str(self.intra.k_i))
             print("d_k_i = " + str(self.intra.d_k_i))
-            raise Exception("[K+] < 0 ")
+            self.intra.k_i = 1e-12
 
     def first_save(self):
 

@@ -35,9 +35,9 @@ old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only neede
 
 # STEP 2: SET SIMULATION TIMING
 
-total_t = 1200  # total simulation time in seconds
-dt = 1e-6  # simulation time step in seconds
-intervals = 120000  # number of times the results of the simulation will be saved to the HDF file
+total_t = 4000  # total simulation time in seconds
+dt = 1e-5  # simulation time step in seconds
+intervals = 400000  # number of times the results of the simulation will be saved to the HDF file
 
 # STEP 3: SET SIMULATION SETTINGS
 
@@ -92,18 +92,18 @@ sim.dynamic_ATPase = dynamic_ATPase
 
 ## ERAN
 
-sim.add_synapse(start_t=300, tau=50e-3, max_g=1e-8)
+sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
 
 ## JOE
 
-# sim.add_synapse(start_t=300, tau=50e-3, max_g=1e-8)
-# sim.set_z_change(start_t=600,end_t=720,z_change_amount=-0.2,adjust_cl=False)
-# sim.add_synapse(start_t=900, tau=50e-3, max_g=1e-8)
+# sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+# sim.set_z_change(start_t=2500,end_t=3000,z_change_amount=-0.2,adjust_cl=False)
+# sim.add_synapse(start_t=3500, tau=50e-3, max_g=1e-8)
 
 ## KIRA
 
-# sim.add_synapse(start_t=300, tau=50e-3, max_g=1e-8)
-# sim.set_KCC2_change(start_t=600, end_t=720, final_KCC2_value=0)
-# sim.add_synapse(start_t=900, tau=50e-3, max_g=1e-8)
+# sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+# sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
+# sim.add_synapse(start_t=3500, tau=50e-3, max_g=1e-8)
 
 sim.run_simulation()
