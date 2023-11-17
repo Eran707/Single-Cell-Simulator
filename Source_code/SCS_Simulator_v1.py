@@ -393,11 +393,6 @@ class Simulator:
             self.intra.hco3_i = 1e-12
             #raise Exception("[Cl-] < 0")
             
-        if self.intra.h_i < 0:
-                print("H_i = " + str(self.intra.h_i))
-                print("d_H_i = " + str(self.intra.d_h_i))
-                self.intra.h_i = 1e-12
-                #raise Exception("[Cl-] < 0")      
         
         if self.intra.k_i < 0:
             print("k_i = " + str(self.intra.k_i))
