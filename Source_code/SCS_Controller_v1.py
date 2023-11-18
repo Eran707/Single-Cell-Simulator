@@ -22,7 +22,8 @@ from SCS_Simulator_v1 import Simulator
 sim_type = "New"  # Simulation type either set as "New" or "Extend"
 
 ## ERAN
-new_file_name = "default_oldVersion"
+
+#new_file_name = "default_oldVersion"
 old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only needed when the sim_type is Extend
 
 ## JOE:
@@ -31,13 +32,13 @@ old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only neede
 
 ## KIRA:
 
-# new_file_name = "KCC2_block_oldVersion"
+new_file_name = "KCC2_change_oldVersion"
 
 # STEP 2: SET SIMULATION TIMING
 
-total_t = 4000  # total simulation time in seconds
+total_t = 6000  # total simulation time in seconds
 dt = 1e-5  # simulation time step in seconds
-intervals = 400000  # number of times the results of the simulation will be saved to the HDF file
+intervals = 600000  # number of times the results of the simulation will be saved to the HDF file
 
 # STEP 3: SET SIMULATION SETTINGS
 
@@ -92,7 +93,7 @@ sim.dynamic_ATPase = dynamic_ATPase
 
 ## ERAN
 
-sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+#sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
 
 ## JOE
 
@@ -102,8 +103,8 @@ sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
 
 ## KIRA
 
-# sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
-# sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
-# sim.add_synapse(start_t=3500, tau=50e-3, max_g=1e-8)
+sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
+sim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
 
 sim.run_simulation()

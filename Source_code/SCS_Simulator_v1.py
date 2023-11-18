@@ -60,7 +60,9 @@ class Simulator:
         self.KCC2_params = None
 
         self.syn_on = False
-        self.syn_params = None
+        #self.syn_params = None
+        
+        self.syn_params = []  # Initialize syn_params as an empty list
         self.cl_syn,self.hco3_syn = 0,0
 
         #self.kf = 10 ** (6)  ## Reduce?
@@ -214,43 +216,80 @@ class Simulator:
             @param duration: float,duration of synaptic input
             @param max_neurotransmitter: float,max neurotransmitter concentration in moles/liter
             @param synapse_conductance: float, conductance of the synapse channel in Siemens, default is 1nS
-            """
+        """
+        
+        if not hasattr(self, 'syn_params'):
+            self.syn_params = []
         self.syn_on = True
-        self.syn_params = {"start_t": start_t,
-                           "tau": tau,
-                           "max_g": max_g}
+        self.syn_params.append({"start_t": start_t, "tau": tau, "max_g": max_g})
+
+
 
     def synapse_step(self):
-        # Model of GABAergic input - "Alpha function"
-        # Moved away from a receptor binding model towards a simpler alpha function of modelling gaba
-        # i_cl = g(Vm-ECl) * (gaba_fraction)
-        # i_hco3 = g(Vm-EHCO3) * (1 - gaba_fraction)
-        # g = conductance of the synapse at a particular time point
-        # g = gmax*(t-onset) / (tau * e[-(t-onset-tau)/tau]
-        # gmax = maximum conductance
-        # tau = time to peak of the conductance change (e.g 0.1ms)
+        total_cl_change = 0
+        total_hco3_change = 0
 
-        syn_g = self.syn_params["max_g"] * (
-                (self.run_t - self.syn_params["start_t"]) / self.syn_params["tau"]) * np.exp(
-            -(self.run_t - self.syn_params["start_t"] - self.syn_params["tau"]) / self.syn_params["tau"])
+        for synapse in self.syn_params:
+            if self.run_t > synapse["start_t"]:
+                # Calculate synapse conductance
+                syn_g = synapse["max_g"] * (
+                    (self.run_t - synapse["start_t"]) / synapse["tau"]) * np.exp(
+                    -(self.run_t - synapse["start_t"] - synapse["tau"]) / synapse["tau"])
+        
+                # GABA Fraction
+                gaba_fraction = (self.intra.E_hco3 - self.intra.E_gaba) / (
+                    self.intra.E_hco3 - self.intra.E_cl)
+        
+                # Chloride component
+                I_cl = syn_g * (self.intra.v - self.intra.E_cl) * gaba_fraction
+                I_cl = I_cl / F  # converting coulomb to mol
+                I_cl = I_cl * self.dt  # getting the mol input for the timestep
+                cl_change = I_cl / self.intra.w  # calculating concentration change
+                total_cl_change += cl_change
+        
+                # Bicarbonate component
+                I_hco3 = syn_g * (self.intra.v - self.intra.E_hco3) * (1 - gaba_fraction)
+                I_hco3 = I_hco3 / F  # converting coulomb to mol
+                I_hco3 = I_hco3 * self.dt  # getting the mol input for the timestep
+                hco3_change = I_hco3 / self.intra.w  # calculating concentration change
+                total_hco3_change += hco3_change
 
-        # GABA Fraction
-        gaba_fraction = (self.intra.E_hco3 - self.intra.E_gaba) / (
-                self.intra.E_hco3 - self.intra.E_cl)  # ref. chris paper
+        # Apply the total changes from all synapses
+        self.cl_syn = total_cl_change
+        self.hco3_syn = total_hco3_change
 
-        # Chloride component
-        I_cl = syn_g * (self.intra.v - self.intra.E_cl) * gaba_fraction
-        I_cl = I_cl / F  # converting coulomb to mol
-        I_cl = I_cl * self.dt  # getting the mol input for the timestep
-        cl_change = I_cl / self.intra.w  # calculating concentration change
-        self.cl_syn = cl_change
 
-        # Bicarb component
-        I_hco3 = syn_g * (self.intra.v - self.intra.E_hco3) * (1 - gaba_fraction)
-        I_hco3 = I_hco3 / F  # converting coulomb to mol
-        I_hco3 = I_hco3 * self.dt  # getting the mol input for the timestep
-        hco3_change = I_hco3 / self.intra.w  # calculating concentration change
-        self.hco3_syn = hco3_change
+    # def synapse_step(self):
+    #     # Model of GABAergic input - "Alpha function"
+    #     # Moved away from a receptor binding model towards a simpler alpha function of modelling gaba
+    #     # i_cl = g(Vm-ECl) * (gaba_fraction)
+    #     # i_hco3 = g(Vm-EHCO3) * (1 - gaba_fraction)
+    #     # g = conductance of the synapse at a particular time point
+    #     # g = gmax*(t-onset) / (tau * e[-(t-onset-tau)/tau]
+    #     # gmax = maximum conductance
+    #     # tau = time to peak of the conductance change (e.g 0.1ms)
+
+    #     syn_g = self.syn_params["max_g"] * (
+    #             (self.run_t - self.syn_params["start_t"]) / self.syn_params["tau"]) * np.exp(
+    #         -(self.run_t - self.syn_params["start_t"] - self.syn_params["tau"]) / self.syn_params["tau"])
+
+    #     # GABA Fraction
+    #     gaba_fraction = (self.intra.E_hco3 - self.intra.E_gaba) / (
+    #             self.intra.E_hco3 - self.intra.E_cl)  # ref. chris paper
+
+    #     # Chloride component
+    #     I_cl = syn_g * (self.intra.v - self.intra.E_cl) * gaba_fraction
+    #     I_cl = I_cl / F  # converting coulomb to mol
+    #     I_cl = I_cl * self.dt  # getting the mol input for the timestep
+    #     cl_change = I_cl / self.intra.w  # calculating concentration change
+    #     self.cl_syn = cl_change
+
+    #     # Bicarb component
+    #     I_hco3 = syn_g * (self.intra.v - self.intra.E_hco3) * (1 - gaba_fraction)
+    #     I_hco3 = I_hco3 / F  # converting coulomb to mol
+    #     I_hco3 = I_hco3 * self.dt  # getting the mol input for the timestep
+    #     hco3_change = I_hco3 / self.intra.w  # calculating concentration change
+    #     self.hco3_syn = hco3_change
 
 
     def calc_voltages(self):
@@ -297,11 +336,19 @@ class Simulator:
                     if self.z_change_params["adjust_cl"]:
                         self.intra.cl_i = self.intra.na_i + self.intra.k_i + (self.intra.x_i * self.intra.z_i)
 
+        # # 2.4: Synapse step
+        # if self.syn_on:
+        #     if self.run_t > self.syn_params["start_t"]:
+        #         self.synapse_step()
+                
+                
         # 2.4: Synapse step
         if self.syn_on:
-            if self.run_t > self.syn_params["start_t"]:
-                self.synapse_step()
-
+            for synapse in self.syn_params:
+                if self.run_t >= synapse["start_t"]:
+                    self.synapse_step()
+                    break        
+        
         # 2.5: External current
 
         # Part 3: Calculate concentration changes
