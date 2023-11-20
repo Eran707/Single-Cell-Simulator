@@ -49,17 +49,17 @@ class Compartment:
         self.p_kcc2 = p_kcc2
         self.p_atpase = p_atpase
 
-        self.v, self.E_cl, self.E_k, self.drivingf_cl = -69.8e-3, -81.1e-3, -100e-3, 0
+        self.v, self.E_cl, self.E_k, self.drivingf_cl = -67.2e-3, -81.1e-3, -100e-3, 0
         self.E_gaba, self.E_hco3, self.gaba_fraction = 0, 0, 0
 
         self.na_i, self.k_i, self.cl_i, self.hco3_i, self.x_i, self.z_i = 0, 0, 0, 0, 0, 0
 
     def set_ion_properties(self,
-                           na_i=0.014,
-                           k_i=0.1229,
-                           cl_i=0.0052,
-                           hco3_i=0.025,
-                           x_i=0.1549,
+                           na_i=0.015,
+                           k_i=0.1226,
+                           cl_i=0.0053,
+                           hco3_i=0.0097,
+                           x_i=0.1444,
                            z_i=-0.85,
                            ):
         self.na_i, self.k_i, self.cl_i, self.hco3_i, self.x_i, self.z_i = na_i, k_i, cl_i, hco3_i, x_i, z_i

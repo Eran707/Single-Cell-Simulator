@@ -1,6 +1,6 @@
 # ---------------------------------------------------
 ####################################################
-# 30 October 2023
+# 20 November 2023
 # Contributors: Eran Shorer, Kira Dusterwald, Christopher Currin, Joseph Raimondo
 
 # SCS - SINGLE CELL SIMULATOR
@@ -21,20 +21,21 @@ from SCS_Simulator_v1 import Simulator
 
 sim_type = "New"  # Simulation type either set as "New" or "Extend"
 
-## ERAN
+## Baseline
 
-#new_file_name = "default_oldVersion"
+new_file_name = "default_oldVersion"
 old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only needed when the sim_type is Extend
 
-## JOE:
+## zChange:
 
 # new_file_name = "z_change_oldVersion"
 
-## KIRA:
+## KCC2:
 
-new_file_name = "KCC2_change_oldVersion"
+#new_file_name = "KCC2_change_oldVersion"
 
 # STEP 2: SET SIMULATION TIMING
+
 
 total_t = 6000  # total simulation time in seconds
 dt = 1e-5  # simulation time step in seconds
@@ -48,12 +49,12 @@ dynamic_ATPase = True
 # STEP 4: SET ION CONCENTRATIONS (ONLY FOR NEW SIMULATIONS)
 
 
-na_i = 13e-3
-k_i = 121.15e-3
-cl_i = 5.2e-3
-hco3_i = 10e-3
+na_i = 15e-3
+k_i = 122.6e-3
+cl_i = 5.3e-3
+hco3_i = 9.7e-3
 # h_i = 6.31e-8 # we did not have this in the older version
-X_i = 139.9e-3
+X_i = 144.4e-3
 Total_intra_charge = na_i + k_i - (cl_i + hco3_i + X_i * 0.85)
 intracellular_params = {"name": "1_Intracellular", "radius": 5e-5, "length": 25e-5,
                         "na": na_i, "k": k_i, "cl": cl_i, "hco3": hco3_i, "X": X_i, "z": -0.85}
@@ -91,20 +92,20 @@ sim.dynamic_ATPase = dynamic_ATPase
 ## Options available: Z_change; X_change; Add_synapse; Add_current; Change_KCC2
 
 
-## ERAN
+## Baseline
 
 #sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
 
-## JOE
+## zChange
 
 # sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
 # sim.set_z_change(start_t=2500,end_t=3000,z_change_amount=-0.2,adjust_cl=False)
 # sim.add_synapse(start_t=3500, tau=50e-3, max_g=1e-8)
 
-## KIRA
+## KCC2
 
-sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
-sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
-sim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
+#sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+#sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
+#ssim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
 
 sim.run_simulation()

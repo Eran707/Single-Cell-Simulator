@@ -5,7 +5,7 @@ import time
 import compartment
 from common import \
     gk, gna, gcl, ghco3, p_atpase, p_kcc2, h2co3_i, \
-    pw, vw, RTF, cm, F, h_i
+    pw, vw, RTF, cm, F, h_i, kf
 
 
 class Simulator:
@@ -65,8 +65,8 @@ class Simulator:
         self.syn_params = []  # Initialize syn_params as an empty list
         self.cl_syn,self.hco3_syn = 0,0
 
-        #self.kf = 10 ** (6)  ## Reduce?
-        self.kf = 10 **3
+
+        self.kf = kf
         self.kr = (-5e-11 + self.kf * 0.0016) / (0.01 * 63e-9)
         print("k_r:" +str(self.kr))
         # self.kr = 10 ** (12.4)
@@ -259,39 +259,6 @@ class Simulator:
         self.hco3_syn = total_hco3_change
 
 
-    # def synapse_step(self):
-    #     # Model of GABAergic input - "Alpha function"
-    #     # Moved away from a receptor binding model towards a simpler alpha function of modelling gaba
-    #     # i_cl = g(Vm-ECl) * (gaba_fraction)
-    #     # i_hco3 = g(Vm-EHCO3) * (1 - gaba_fraction)
-    #     # g = conductance of the synapse at a particular time point
-    #     # g = gmax*(t-onset) / (tau * e[-(t-onset-tau)/tau]
-    #     # gmax = maximum conductance
-    #     # tau = time to peak of the conductance change (e.g 0.1ms)
-
-    #     syn_g = self.syn_params["max_g"] * (
-    #             (self.run_t - self.syn_params["start_t"]) / self.syn_params["tau"]) * np.exp(
-    #         -(self.run_t - self.syn_params["start_t"] - self.syn_params["tau"]) / self.syn_params["tau"])
-
-    #     # GABA Fraction
-    #     gaba_fraction = (self.intra.E_hco3 - self.intra.E_gaba) / (
-    #             self.intra.E_hco3 - self.intra.E_cl)  # ref. chris paper
-
-    #     # Chloride component
-    #     I_cl = syn_g * (self.intra.v - self.intra.E_cl) * gaba_fraction
-    #     I_cl = I_cl / F  # converting coulomb to mol
-    #     I_cl = I_cl * self.dt  # getting the mol input for the timestep
-    #     cl_change = I_cl / self.intra.w  # calculating concentration change
-    #     self.cl_syn = cl_change
-
-    #     # Bicarb component
-    #     I_hco3 = syn_g * (self.intra.v - self.intra.E_hco3) * (1 - gaba_fraction)
-    #     I_hco3 = I_hco3 / F  # converting coulomb to mol
-    #     I_hco3 = I_hco3 * self.dt  # getting the mol input for the timestep
-    #     hco3_change = I_hco3 / self.intra.w  # calculating concentration change
-    #     self.hco3_syn = hco3_change
-
-
     def calc_voltages(self):
         intracellular_charge = self.intra.na_i + self.intra.k_i + \
                                (self.intra.z_i * self.intra.x_i) - (self.intra.cl_i + self.intra.hco3_i)
@@ -335,11 +302,6 @@ class Simulator:
                     self.intra.z_i += self.z_change_params["z_change_delta"]
                     if self.z_change_params["adjust_cl"]:
                         self.intra.cl_i = self.intra.na_i + self.intra.k_i + (self.intra.x_i * self.intra.z_i)
-
-        # # 2.4: Synapse step
-        # if self.syn_on:
-        #     if self.run_t > self.syn_params["start_t"]:
-        #         self.synapse_step()
                 
                 
         # 2.4: Synapse step
@@ -364,9 +326,6 @@ class Simulator:
         d_hco3_forwardRx = self.dt * self.kf * h2co3_i
         d_hco3_reverseRx = self.dt * self.kr * self.intra.hco3_i * h_i
         self.intra.d_hco3_i = d_hco3_leak + (d_hco3_forwardRx - d_hco3_reverseRx) + self.hco3_syn
-
-        # should convert to mols of HCO3 --> mols of H+ --> mols of Na+ : this is the same
-
 
         d_na_leak = - (self.dt * self.intra.sa / self.intra.w) * (gna + self.g_extra) * (
                 self.intra.v + RTF * np.log(self.intra.na_i / self.extra.na_i))
