@@ -32,7 +32,7 @@ old_file_name = "rate_constants_SS_default_z_ratio_constants_exch"  # Only neede
 
 ## KIRA:
 
-new_file_name = "KCC2_change_oldVersion"
+new_file_name = "z_change_oldVersion"
 
 # STEP 2: SET SIMULATION TIMING
 
@@ -97,14 +97,14 @@ sim.dynamic_ATPase = dynamic_ATPase
 
 ## JOE
 
-# sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
-# sim.set_z_change(start_t=2500,end_t=3000,z_change_amount=-0.2,adjust_cl=False)
-# sim.add_synapse(start_t=3500, tau=50e-3, max_g=1e-8)
+sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+sim.set_z_change(start_t=2500,end_t=3000,z_change_amount=-0.2,adjust_cl=False)
+sim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
 
 ## KIRA
 
-sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
-sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
-sim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
+# sim.add_synapse(start_t=2000, tau=50e-3, max_g=1e-8)
+# sim.set_KCC2_change(start_t=2500, end_t=3000, final_KCC2_value=0)
+# sim.add_synapse(start_t=5000, tau=50e-3, max_g=1e-8)
 
 sim.run_simulation()
