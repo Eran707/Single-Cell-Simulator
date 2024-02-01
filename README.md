@@ -2,7 +2,7 @@
 
 This repository contains the code necessary to reproduce supporting simulations and related figures in:
 > All-optical reporting of inhibitory receptor driving force in the nervous system, by
-> Selfe, Steyn, Shorer, Burman, Düsterwald, Abdelfattah, Schreiter, Newer, Akerman and Raimondo
+> Selfe, Steyn, Shorer, Burman, Düsterwald, Abdelfattah, Schreiter, Newey, Akerman and Raimondo
 
 ## :scroll: Structure
 ```
